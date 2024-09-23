@@ -3,7 +3,6 @@ import subprocess
 import signal
 import sys
 import json
-import getpass
 
 collect_stats_processes = []
 run_workloads_processes = []
@@ -28,35 +27,11 @@ def run_remote_command(host, username, command):
         return output.strip(), error.strip()
     except Exception as e:
         return '', f"SSH connection to {host} failed: {e}"
-    
-def check_remote_dir(host, username, dir):
-    command = f"if [ -d '{dir}' ]; then echo 'true'; else echo 'false'; fi"
-    output, error = run_remote_command(host, username, command)
-    return output.strip() == 'true'
-
-def install_iosense(host, username, host_type, host_type_config):
-    if host_type == 'client':
-        repo_url = "https://github.com/cegersdoerfer/client.git"
-        permission_command = f"chmod +x {host_type_config['install_dir']}/run_workloads.py"
-    else:
-        repo_url = "https://github.com/cegersdoerfer/server.git"
-        permission_command = f"chmod +x {host_type_config['install_dir']}/collect_stats.sh"
-    install_dir = host_type_config['install_dir']
-    # create install_dir and clone repo
-    command = f"mkdir -p {install_dir} && git clone {repo_url} {install_dir} && {permission_command}"
-    output, error = run_remote_command(host, username, command)
-    if error:
-        print(f"Error installing iosense on {host}: {error}")
-    else:
-        print(f"Installed iosense on {host}")
 
 
 def start_collect_stats(hosts, username, server_config):
     global collect_stats_processes
     for host in hosts:
-        # check if install_dir exists on remote host
-        if not check_remote_dir(host, username, server_config['install_dir']):
-            install_iosense(host, username, 'server', server_config)
         # Escape the $! so that it's evaluated on the remote host
         command = f"nohup {server_config['install_dir']}/collect_stats.sh > /dev/null 2>&1 & echo $!"
         output, error = run_remote_command(host, username, command)
@@ -73,9 +48,6 @@ def start_collect_stats(hosts, username, server_config):
 def start_run_workloads(hosts, username, interference_level, client_config):
     global run_workloads_processes
     for host in hosts:
-        # check if install_dir exists on remote host
-        if not check_remote_dir(host, username, client_config['install_dir']):
-            install_iosense(host, username, 'client', client_config)
         command = f"nohup python run_workloads.py --interference_level {interference_level} > /dev/null 2>&1 & echo $!"
         output, error = run_remote_command(host, username, command)
         if error:
