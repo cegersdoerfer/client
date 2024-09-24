@@ -16,21 +16,23 @@ def run_remote_command(host, username, command):
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname=host, username=username, timeout=10)
         stdin, stdout, stderr = ssh.exec_command(command)
+        # Wait for the command to complete
+        exit_status = stdout.channel.recv_exit_status()
         output = stdout.read().decode()
         error = stderr.read().decode()
         ssh.close()
-        return output.strip(), error.strip()
+        return output.strip(), error.strip(), exit_status
     except Exception as e:
-        return '', f"SSH connection to {host} failed: {e}"
-    
+        return '', f"SSH connection to {host} failed: {e}", -1
+
 def run_local_command(command):
     try:
-        stdin, stdout, stderr = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        output = stdout.read().decode()
-        error = stderr.read().decode()
-        return output.strip(), error.strip()
+        process = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        output, error = process.communicate()
+        exit_status = process.returncode
+        return output.decode().strip(), error.decode().strip(), exit_status
     except Exception as e:
-        return '', f"Local command failed: {e}"
+        return '', f"Local command failed: {e}", -1
 
 def install_iosense(host, username, host_type, host_type_config, local=False):
     if host_type == 'client':
@@ -43,14 +45,18 @@ def install_iosense(host, username, host_type, host_type_config, local=False):
     
     if local:
         command = f"chmod +x ./launch_multi_interference_test.py && chmod +x ./run_workloads.py"
-        output, error = run_local_command(command)
+        output, error, exit_status = run_local_command(command)
     else:
         command = f"rm -rf {install_dir} && mkdir -p {install_dir} && git clone {repo_url} {install_dir} && {permission_command}"
-        output, error = run_remote_command(host, username, command)
-    if error:
+        output, error, exit_status = run_remote_command(host, username, command)
+    if exit_status != 0:
         print(f"Error installing iosense on {host}: {error}")
     else:
         print(f"Installed iosense on {host}")
+        if output:
+            print(f"Output from {host}: {output}")
+        if error:
+            print(f"Error messages from {host}: {error}")
 
 def configure_cluster(config, username):
     # Configure servers (MDS and OSS)
@@ -78,7 +84,5 @@ def main(args):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Install and configure the iosense on the cluster.")
     parser.add_argument("--config", type=str, default=CONFIG_FILE, help="Path to the cluster configuration file.")
-    global username
-    username = "root"
     args = parser.parse_args()
     main(args)
