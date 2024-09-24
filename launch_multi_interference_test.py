@@ -3,6 +3,11 @@ import subprocess
 import signal
 import sys
 import json
+import os
+import zipfile
+import datetime
+import shutil
+
 
 collect_stats_processes = []
 run_workloads_processes = []
@@ -45,10 +50,53 @@ def start_collect_stats(hosts, username, server_config):
             else:
                 print(f"Failed to get PID for collect_stats.sh on {host}: {output}")
 
+def gather_stats(hosts, username, workload, server_config):
+    local_stats_dir = f"workloads/{workload}/stats"
+    if not os.path.exists(local_stats_dir):
+        os.makedirs(local_stats_dir)
+    for host in hosts:
+        remote_stats_dir = f"{server_config['stats_log_dir']}"
+        remote_zip_file = f"/tmp/{host}_stats.zip"
+        local_zip_file = os.path.join(local_stats_dir, f"{host}_stats.zip")
+        local_unzip_dir = os.path.join(local_stats_dir, host)
+        
+        # Command to zip the stats directory on the remote host
+        zip_command = f"cd {remote_stats_dir} && zip -r {remote_zip_file} ."
+        output, error = run_remote_command(host, username, zip_command)
+        if error:
+            print(f"Error zipping stats on {host}: {error}")
+            continue
+        
+        # Create an SFTP client and download the zip file
+        try:
+            ssh = paramiko.SSHClient()
+            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+            ssh.connect(hostname=host, username=username, timeout=10)
+            sftp = ssh.open_sftp()
+            sftp.get(remote_zip_file, local_zip_file)
+            sftp.remove(remote_zip_file)  # Remove the zip file from the remote host
+            sftp.close()
+            ssh.close()
+            print(f"Successfully gathered stats from {host} to {local_zip_file}")
+        except Exception as e:
+            print(f"Error transferring stats from {host}: {e}")
+
+        # Unzip the stats file
+        try:
+            if not os.path.exists(local_unzip_dir):
+                os.makedirs(local_unzip_dir)
+            with zipfile.ZipFile(local_zip_file, 'r') as zip_ref:
+                zip_ref.extractall(local_unzip_dir)
+            print(f"Successfully unzipped stats for {host} to {local_unzip_dir}")
+            # Optionally remove the zip file after unzipping
+            os.remove(local_zip_file)
+        except Exception as e:
+            print(f"Error unzipping stats for {host}: {e}")
+
 def start_run_workloads(hosts, username, interference_level, client_config):
     global run_workloads_processes
     for host in hosts:
-        command = f"nohup python run_workloads.py --interference_level {interference_level} > /dev/null 2>&1 & echo $!"
+        command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} > /dev/null 2>&1 & echo $!"
         output, error = run_remote_command(host, username, command)
         if error:
             print(f"Error starting run_workloads.py on {host}: {error}")
@@ -59,6 +107,19 @@ def start_run_workloads(hosts, username, interference_level, client_config):
                 run_workloads_processes.append({'host': host, 'pid': pid})
             else:
                 print(f"Failed to get PID for run_workloads.py on {host}: {output}")
+
+def gather_darshan_logs(darshan_log_dir, workload):
+    day, month, year = datetime.datetime.now().day, datetime.datetime.now().month, datetime.datetime.now().year
+    darshan_log_dir = f"{darshan_log_dir}/{year}/{month}/{day}"
+    target_dir = f"workloads/{workload}/darshan_logs"
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    # move all darshan logs to the target dir
+    for file in os.listdir(darshan_log_dir):
+        if file.endswith(".darshan"):
+            shutil.move(os.path.join(darshan_log_dir, file), os.path.join(target_dir, file))
+
 
 def stop_remote_processes(processes, username):
     for proc in processes:
@@ -97,8 +158,6 @@ def main():
     config = parse_config()
     # Start collect_stats.sh on mdt and osts
     server_hosts = config['mdts'] + config['osts']
-    print("Starting collect_stats.sh on servers...")
-    start_collect_stats(server_hosts, username, config['server'])
     # Register signal handler
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
@@ -107,6 +166,8 @@ def main():
     interference_levels = [1, 2, 3, 4, 5]
 
     for interference_level in interference_levels:
+        print("Starting collect_stats.sh on servers...")
+        start_collect_stats(server_hosts, username, config['server'])
         print(f"\n=== Starting interference level {interference_level} ===")
         print(f"Starting run_workloads.py on remote clients with interference level {interference_level}...")
         start_run_workloads(config['interference_clients'], username, interference_level, config['client'])
@@ -122,6 +183,10 @@ def main():
             print(f"Stopping remote run_workloads.py processes for interference level {interference_level}...")
             stop_remote_processes(run_workloads_processes, username)
             run_workloads_processes.clear()
+            print(f"Stopping collect_stats.sh on servers for interference level {interference_level}...")
+            stop_remote_processes(collect_stats_processes, username)
+            gather_stats(server_hosts, username, workload, config['server'])
+            collect_stats_processes.clear()
     print("\nAll interference levels completed.")
     cleanup()
 
