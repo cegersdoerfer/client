@@ -12,6 +12,9 @@ def update_ini_files(directory):
                 if 'global' in config:
                     config['global']['datadir'] = '/mnt/hasanfs/io500_runs/datafiles_interference'
                     config['global']['resultdir'] = '/mnt/hasanfs/io500_runs/results_interference'
+                
+                if 'ior-easy' in config:
+                    config['ior-easy']['blockSize'] = '10g'
 
                 with open(file_path, 'w') as configfile:
                     config.write(configfile)
