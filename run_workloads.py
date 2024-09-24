@@ -7,8 +7,18 @@ import sys
 import time
 import os
 import random
+import json
+
 
 terminate_flag = False
+
+def load_config():
+    if "iosense_config" in os.environ:
+        with open(os.environ["iosense_config"], "r") as f:
+            return json.load(f)
+    else:
+        print("Error: iosense_config environment variable is not set.")
+        sys.exit(1)
 
 def signal_handler(signum, frame):
     global terminate_flag
@@ -19,7 +29,7 @@ def signal_handler(signum, frame):
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
 
-def run_interference_workload(interference_level):
+def run_interference_workload(config, interference_level):
     """
     Run interference workload by maintaining interference_level number of IO500 processes.
     Each process runs with a random configuration from the interference_configs directory.
@@ -29,19 +39,20 @@ def run_interference_workload(interference_level):
     print(f"Starting interference workload with interference level {interference_level}")
 
     # Paths to the run script and configuration directory
-    run_script = "./workloads/IO500/run.sh"
-    config_dir = "./workloads/IO500/interference_configs"
+    client_root = config['client']['install_dir']
+    run_script = os.path.join(client_root, "workloads/IO500/run.sh")
+    config_dir = os.path.join(client_root, "workloads/IO500/interference_configs")
 
     # Get list of configuration files
-    config_files = get_config_files(config_dir)
-    if not config_files:
-        print(f"No configuration files found in {config_dir}")
+    sample_dict = create_sample_dict(config_dir)
+    if not sample_dict:
+        print(f"No configuration directories found in {config_dir}")
         sys.exit(1)
 
     try:
         # Start initial IO500 processes
         for _ in range(interference_level):
-            p = start_io500_process(run_script, config_files)
+            p = start_io500_process(run_script, sample_dict)
             if p:
                 processes.append(p)
 
@@ -56,7 +67,7 @@ def run_interference_workload(interference_level):
                     processes.remove(p)
                     if not terminate_flag:
                         # Start a new process to maintain the interference level
-                        new_p = start_io500_process(run_script, config_files)
+                        new_p = start_io500_process(run_script, sample_dict)
                         if new_p:
                             processes.append(new_p)
             time.sleep(1)  # Sleep to prevent busy waiting
@@ -70,20 +81,34 @@ def run_interference_workload(interference_level):
             terminate_process(p)
         print("Interference workload terminated.")
 
-def start_io500_process(run_script, config_dirs):
+def create_sample_dict(config_dir):
+    """
+    Create a dictionary with the number of configuration files in each directory.
+    """
+    config_dirs = get_config_dirs(config_dir)
+    sample_dict = {}
+    for subdir in config_dirs:
+        config_files = get_config_files(subdir)
+        sample_dict[subdir] = config_files
+    return sample_dict
+
+def sample_config_file(sample_dict):
+    """
+    Sample a random configuration file from the specified directories.
+    """
+    config_dir = random.choice(list(sample_dict.keys()))
+    config_files = sample_dict[config_dir]
+    return random.choice(config_files)
+
+def start_io500_process(run_script, sample_dict):
     """
     Start an IO500 process with a random configuration file.
     """
     try:
-        # Select a random configuration directory
-        config_dir = random.choice(config_dirs)
-        # Get a random config file from the selected directory
-        config_files = get_config_files(config_dir)
-        config_file = random.choice(config_files)
-        config_file_path = os.path.join(config_dir, config_file)
-        print(f"Starting IO500 with configuration: {config_file_path}")
-        
-        p = subprocess.Popen([run_script, config_file_path])
+        sampled_config_file = sample_config_file(sample_dict)
+        print(f"Starting IO500 with configuration: {sampled_config_file}")
+
+        p = subprocess.Popen([run_script, sampled_config_file])
         print(f"Started IO500 process with PID {p.pid}")
         return p
     except Exception as e:
@@ -128,15 +153,17 @@ def get_config_files(dir_path):
         print(f"Error accessing configuration directory {dir_path}: {e}")
         return []
     
-def run_application_workload(app_name):
+def run_application_workload(config, app_name):
     """
     Run the specified application workload.
     """
     print(f"Starting application workload: {app_name}")
 
     if app_name == "IO500":
-        run_script = "./workloads/IO500/run.sh"
-        config_dir = "./workloads/IO500/regular_configs"
+        client_root = config['client']['install_dir']
+        run_script = os.path.join(client_root, "workloads/IO500/run.sh")
+        config_dir = os.path.join(client_root, "workloads/IO500/regular_configs")
+    
         config_files = get_config_files(config_dir)
         if not config_files:
             print(f"No configuration files found in {config_dir}")
@@ -159,7 +186,7 @@ def run_application_workload(app_name):
         print(f"Unknown application workload: {app_name}")
         sys.exit(1)
 
-def main():
+def main(config):
     parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
     parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
     parser.add_argument('--app', type=str, help='Application workload to run')
@@ -167,13 +194,14 @@ def main():
     args = parser.parse_args()
 
     if args.interference_level is not None:
-        run_interference_workload(args.interference_level)
+        run_interference_workload(config, args.interference_level)
     elif args.app:
-        run_application_workload(args.app)
+        run_application_workload(config, args.app)
     else:
         print("No valid arguments provided. Use --interference_level or --app.")
         parser.print_help()
         sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    config = load_config()
+    main(config)

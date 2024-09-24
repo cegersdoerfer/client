@@ -34,6 +34,15 @@ def run_local_command(command):
     except Exception as e:
         return '', f"Local command failed: {e}", -1
 
+def overwrite_io500_script(host, username, client_config, local=False):
+    command = f"cp ./io500.sh {client_config['install_dir']}/workloads/IO500/io500.sh"
+    if local:
+        output, error, exit_status = run_local_command(command)
+    else:
+        output, error, exit_status = run_remote_command(host, username, command)
+    if exit_status != 0:
+        print(f"Error overwriting io500.sh on {host}: {error}")
+
 def install_iosense(host, username, host_type, host_type_config, local=False):
     if host_type == 'client':
         repo_url = "https://github.com/cegersdoerfer/client.git"
@@ -69,12 +78,13 @@ def configure_cluster(config, username):
     for host in config['interference_clients']:
         print(f"Configuring client on {host}...")
         install_iosense(host, username, 'client', config['client'])
-
+        overwrite_io500_script(host, username, config['client'])
     # Configure target client
     target_client = config['target_client']
     print(f"Configuring target client on {target_client}...")
     install_iosense(target_client, username, 'client', config['client'], local=True)
-
+    overwrite_io500_script(target_client, username, config['client'], local=True)
+    
 def main(args):
     username = "root"  # You might want to change this or prompt for it
     config = parse_config(args.config)

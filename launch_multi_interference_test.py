@@ -17,6 +17,7 @@ CONFIG_FILE = "cluster_config.json"
 def parse_config():
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
+    os.environ["iosense_config"] = CONFIG_FILE
     return config
 
 def run_remote_command(host, username, command):
@@ -163,7 +164,7 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     # Interference levels from 1 to 5
-    interference_levels = [1, 2, 3, 4, 5]
+    interference_levels = [0, 1, 3, 5]
 
     for interference_level in interference_levels:
         print("Starting collect_stats.sh on servers...")

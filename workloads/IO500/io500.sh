@@ -12,7 +12,8 @@
 # This script takes its parameters from the same .ini file as io500 binary.
 io500_ini="$1"          # You can set the ini file here
 io500_mpirun="mpiexec"
-io500_mpiargs="-np 1 -env DXT_ENABLE_IO_TRACE=1 -env LD_PRELOAD=/custom-install/io-profilers/darshan-3.4.5/darshan-runtime/lib/.libs/libdarshan.so -env DARSHAN_LOGFILE=$2"
+# load mpi args from env
+io500_mpiargs=$IO500_MPIARGS
 
 function setup(){
   local workdir="$1"
