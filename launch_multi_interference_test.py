@@ -127,7 +127,6 @@ def stop_remote_processes(processes, username):
             print(f"Stopped process {pid} on {host}")
 
 def start_local_run_workloads(workload, interference_level):
-    print("RUNNING IN DEBUG MODE")
     process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", str(interference_level), "--target_host"], env=os.environ)
     return process
 
@@ -157,6 +156,8 @@ def main():
     global username
     workload = "IO500"
     username = "root"
+    if DEBUG:
+        print("RUNNING IN DEBUG MODE")
     config = parse_config()
     os.environ["IOSENSE_LOG_TIMESTAMP"] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Start collect_stats.sh on mdt and osts

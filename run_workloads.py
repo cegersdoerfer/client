@@ -205,6 +205,7 @@ def run_application_workload(config, app_name, interference_level):
     """
     Run the specified application workload.
     """
+    global DEBUG
     print(f"Starting application workload: {app_name}")
 
     if app_name == "IO500":
