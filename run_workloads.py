@@ -14,10 +14,10 @@ import datetime
 terminate_flag = False
 
 def load_config():
+    global DEBUG
     if "IOSENSE_CONFIG_FILE" in os.environ:
         with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
             config = json.load(f)
-            global DEBUG
             if "debug" in config:
                 DEBUG = config["debug"]
             return config
