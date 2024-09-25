@@ -44,19 +44,29 @@ def overwrite_io500_script(host, username, client_config, local=False):
         print(f"Error overwriting io500.sh on {host}: {error}")
 
 def install_iosense(host, username, host_type, host_type_config, local=False):
+    permission_commands = []
     if host_type == 'client':
         repo_url = "https://github.com/cegersdoerfer/client.git"
-        permission_command = f"chmod +x {host_type_config['install_dir']}/run_workloads.py"
+        permission_commands.append(f"chmod +x {host_type_config['install_dir']}/run_workloads.py")
+        permission_commands.append(f"chmod +x {host_type_config['install_dir']}/workloads/IO500/run.sh")
+        permission_commands.append(f"chmod +x {host_type_config['install_dir']}/workloads/IO500/io500.sh")
+        
     else:
         repo_url = "https://github.com/cegersdoerfer/server.git"
-        permission_command = f"chmod +x {host_type_config['install_dir']}/collect_stats.sh"
+        permission_commands.append(f"chmod +x {host_type_config['install_dir']}/collect_stats.sh")
     install_dir = host_type_config['install_dir']
     
     if local:
-        command = f"chmod +x ./launch_multi_interference_test.py && chmod +x ./run_workloads.py"
+        permission_commands.append(f"chmod +x ./launch_multi_interference_test.py")
+        permission_commands.append(f"chmod +x ./run_workloads.py")
+        permission_commands.append(f"chmod +x ./workloads/IO500/run.sh")
+        permission_commands.append(f"chmod +x ./workloads/IO500/io500.sh")
+        command = " && ".join(permission_commands)
         output, error, exit_status = run_local_command(command)
     else:
-        command = f"rm -rf {install_dir} && mkdir -p {install_dir} && git clone {repo_url} {install_dir} && {permission_command}"
+        command = f"rm -rf {install_dir} && mkdir -p {install_dir} && git clone {repo_url} {install_dir}"
+        for permission_command in permission_commands:
+            command += f" && {permission_command}"
         output, error, exit_status = run_remote_command(host, username, command)
     if exit_status != 0:
         print(f"Error installing iosense on {host}: {error}")
@@ -84,7 +94,7 @@ def configure_cluster(config, username):
     print(f"Configuring target client on {target_client}...")
     install_iosense(target_client, username, 'client', config['client'], local=True)
     overwrite_io500_script(target_client, username, config['client'], local=True)
-    
+
 def main(args):
     username = "root"  # You might want to change this or prompt for it
     config = parse_config(args.config)

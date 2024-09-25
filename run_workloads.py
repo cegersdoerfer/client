@@ -8,13 +8,14 @@ import time
 import os
 import random
 import json
-
+import shutil
+import datetime
 
 terminate_flag = False
 
 def load_config():
-    if "iosense_config" in os.environ:
-        with open(os.environ["iosense_config"], "r") as f:
+    if "IOSENSE_CONFIG_FILE" in os.environ:
+        with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
             return json.load(f)
     else:
         print("Error: iosense_config environment variable is not set.")
@@ -92,6 +93,7 @@ def create_sample_dict(config_dir):
         sample_dict[subdir] = config_files
     return sample_dict
 
+
 def sample_config_file(sample_dict):
     """
     Sample a random configuration file from the specified directories.
@@ -152,8 +154,30 @@ def get_config_files(dir_path):
     except Exception as e:
         print(f"Error accessing configuration directory {dir_path}: {e}")
         return []
-    
-def run_application_workload(config, app_name):
+
+
+def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interference_level):
+    day, month, year = datetime.datetime.now().day, datetime.datetime.now().month, datetime.datetime.now().year
+    darshan_log_dir = f"{darshan_log_dir}/{year}/{month}/{day}"
+    if "IOSENSE_LOG_TIMESTAMP" in os.environ:
+        timestamp_dir = os.environ["IOSENSE_LOG_TIMESTAMP"]
+    else:
+        print("Error: IOSENSE_LOG_TIMESTAMP environment variable is not set.")
+        sys.exit(1)
+    target_dir = f"{config['data_dir']}/{workload}/darshan_logs/{timestamp_dir}/interference_level_{interference_level}"
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
+    # move all darshan logs to the target dir
+    idx = 0
+    for file in os.listdir(darshan_log_dir):
+        if file.endswith(".darshan"):
+            new_name = f"{config_ini}_{idx}.darshan"
+            shutil.move(os.path.join(darshan_log_dir, file), os.path.join(target_dir, new_name))
+            idx += 1
+
+
+def run_application_workload(config, app_name, interference_level):
     """
     Run the specified application workload.
     """
@@ -178,6 +202,7 @@ def run_application_workload(config, app_name):
                     sys.exit(retcode)
                 else:
                     print(f"Completed IO500 with configuration: {config_file}")
+                    gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level)
             print("Application workload completed.")
         except Exception as e:
             print(f"Error during application workload: {e}")
@@ -193,14 +218,9 @@ def main(config):
 
     args = parser.parse_args()
 
-    if args.interference_level is not None:
+    if args.interference_level > 0:
         run_interference_workload(config, args.interference_level)
-    elif args.app:
-        run_application_workload(config, args.app)
-    else:
-        print("No valid arguments provided. Use --interference_level or --app.")
-        parser.print_help()
-        sys.exit(1)
+    run_application_workload(config, args.app, args.interference_level)
 
 if __name__ == "__main__":
     config = load_config()

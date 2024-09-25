@@ -6,7 +6,6 @@ import json
 import os
 import zipfile
 import datetime
-import shutil
 
 
 collect_stats_processes = []
@@ -17,7 +16,7 @@ CONFIG_FILE = "cluster_config.json"
 def parse_config():
     with open(CONFIG_FILE, 'r') as f:
         config = json.load(f)
-    os.environ["iosense_config"] = CONFIG_FILE
+    os.environ["IOSENSE_CONFIG_FILE"] = CONFIG_FILE
     return config
 
 def run_remote_command(host, username, command):
@@ -51,14 +50,17 @@ def start_collect_stats(hosts, username, server_config):
             else:
                 print(f"Failed to get PID for collect_stats.sh on {host}: {output}")
 
-def gather_stats(hosts, username, workload, server_config):
-    local_stats_dir = f"workloads/{workload}/stats"
+def gather_stats(hosts, username, workload, config):
+    server_config = config['server']
+    timestamp_dir = os.environ["IOSENSE_LOG_TIMESTAMP"]
+    local_stats_dir = f"{config['data_dir']}/{workload}/stats/{timestamp_dir}"
     if not os.path.exists(local_stats_dir):
         os.makedirs(local_stats_dir)
     for host in hosts:
+        zip_file_name = f"{host}_stats.zip"
         remote_stats_dir = f"{server_config['stats_log_dir']}"
-        remote_zip_file = f"/tmp/{host}_stats.zip"
-        local_zip_file = os.path.join(local_stats_dir, f"{host}_stats.zip")
+        remote_zip_file = f"/tmp/{zip_file_name}"
+        local_zip_file = os.path.join(local_stats_dir, zip_file_name)
         local_unzip_dir = os.path.join(local_stats_dir, host)
         
         # Command to zip the stats directory on the remote host
@@ -109,18 +111,6 @@ def start_run_workloads(hosts, username, interference_level, client_config):
             else:
                 print(f"Failed to get PID for run_workloads.py on {host}: {output}")
 
-def gather_darshan_logs(darshan_log_dir, workload):
-    day, month, year = datetime.datetime.now().day, datetime.datetime.now().month, datetime.datetime.now().year
-    darshan_log_dir = f"{darshan_log_dir}/{year}/{month}/{day}"
-    target_dir = f"workloads/{workload}/darshan_logs"
-    if not os.path.exists(target_dir):
-        os.makedirs(target_dir)
-
-    # move all darshan logs to the target dir
-    for file in os.listdir(darshan_log_dir):
-        if file.endswith(".darshan"):
-            shutil.move(os.path.join(darshan_log_dir, file), os.path.join(target_dir, file))
-
 
 def stop_remote_processes(processes, username):
     for proc in processes:
@@ -157,6 +147,7 @@ def main():
     workload = "IO500"
     username = "root"
     config = parse_config()
+    os.environ["IOSENSE_LOG_TIMESTAMP"] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Start collect_stats.sh on mdt and osts
     server_hosts = config['mdts'] + config['osts']
     # Register signal handler
@@ -186,7 +177,7 @@ def main():
             run_workloads_processes.clear()
             print(f"Stopping collect_stats.sh on servers for interference level {interference_level}...")
             stop_remote_processes(collect_stats_processes, username)
-            gather_stats(server_hosts, username, workload, config['server'])
+            gather_stats(server_hosts, username, workload, config)
             collect_stats_processes.clear()
     print("\nAll interference levels completed.")
     cleanup()
