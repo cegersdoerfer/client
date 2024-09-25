@@ -127,12 +127,8 @@ def stop_remote_processes(processes, username):
             print(f"Stopped process {pid} on {host}")
 
 def start_local_run_workloads(workload, interference_level):
-    global DEBUG
-    if DEBUG:
-        print("RUNNING IN DEBUG MODE")
-        process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", str(interference_level), "--target_host", "--debug"], env=os.environ)
-    else:
-        process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", str(interference_level), "--target_host"], env=os.environ)
+    print("RUNNING IN DEBUG MODE")
+    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", str(interference_level), "--target_host"], env=os.environ)
     return process
 
 def signal_handler(sig, frame):

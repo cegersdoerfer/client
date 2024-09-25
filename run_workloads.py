@@ -16,7 +16,11 @@ terminate_flag = False
 def load_config():
     if "IOSENSE_CONFIG_FILE" in os.environ:
         with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
-            return json.load(f)
+            config = json.load(f)
+            global DEBUG
+            if "debug" in config:
+                DEBUG = config["debug"]
+            return config
     else:
         print("Error: iosense_config environment variable is not set.")
         sys.exit(1)
@@ -171,6 +175,10 @@ def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interfere
         print("Error: IOSENSE_LOG_TIMESTAMP environment variable is not set.")
         sys.exit(1)
 
+    print(f"Config: {config}")
+    print(f"Config ini: {config_ini}")
+    print(f"Interference level: {interference_level}")
+    
     target_dir = f"{config['data_dir']}/{workload}/darshan_logs/{timestamp_dir}/interference_level_{interference_level}"
     print(f"Target directory for logs: {target_dir}")
 
@@ -233,17 +241,8 @@ def run_application_workload(config, app_name, interference_level):
         print(f"Unknown application workload: {app_name}")
         sys.exit(1)
 
-def main(config):
-    global DEBUG
-    parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
-    parser.add_argument('--target_host', action='store_true', help='Target host to run the workload on')
-    parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
-    parser.add_argument('--app', type=str, help='Application workload to run')
-    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
-    args = parser.parse_args()
-    if args.debug:
-        DEBUG = True
-
+def main(args):
+    config = load_config()
     if not args.target_host:
         if args.interference_level > 0:
             run_interference_workload(config, args.interference_level)
@@ -251,5 +250,11 @@ def main(config):
         run_application_workload(config, args.app, args.interference_level)
 
 if __name__ == "__main__":
-    config = load_config()
-    main(config)
+    parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
+    parser.add_argument('--target_host', action='store_true', help='Target host to run the workload on')
+    parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
+    parser.add_argument('--app', type=str, help='Application workload to run')
+    args = parser.parse_args()
+
+
+    main(args)
