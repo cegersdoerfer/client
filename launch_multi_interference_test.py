@@ -37,8 +37,10 @@ def run_remote_command(host, username, command):
 def start_collect_stats(hosts, username, server_config):
     global collect_stats_processes
     for host in hosts:
+        stat_interval = 0.1
+        stats_logging_dir = server_config['stats_log_dir']
         # Escape the $! so that it's evaluated on the remote host
-        command = f"nohup {server_config['install_dir']}/collect_stats.sh > /dev/null 2>&1 & echo $!"
+        command = f"nohup {server_config['install_dir']}/collect_stats.sh {stat_interval} {stats_logging_dir} > /dev/null 2>&1 & echo $!"
         output, error = run_remote_command(host, username, command)
         if error:
             print(f"Error starting collect_stats.sh on {host}: {error}")
