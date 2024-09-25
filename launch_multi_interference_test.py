@@ -124,7 +124,7 @@ def stop_remote_processes(processes, username):
             print(f"Stopped process {pid} on {host}")
 
 def start_local_run_workloads(workload):
-    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload])
+    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload], env=os.environ)
     return process
 
 def signal_handler(sig, frame):
