@@ -60,11 +60,11 @@ def gather_stats(hosts, username, workload, config):
     if not os.path.exists(local_stats_dir):
         os.makedirs(local_stats_dir)
     for host in hosts:
-        zip_file_name = f"{host}_stats.zip"
+        zip_file_name = f"{host}_stats_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.zip"
         remote_stats_dir = f"{server_config['stats_log_dir']}"
         remote_zip_file = f"{server_config['zip_logs_dir']}/{zip_file_name}"
         local_zip_file = os.path.join(local_stats_dir, zip_file_name)
-        local_unzip_dir = os.path.join(local_stats_dir, host)
+        local_unzip_dir = os.path.join(local_stats_dir, f"{host}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}")
         
         # Command to zip the stats directory on the remote host
         zip_command = f"cd {remote_stats_dir} && zip -r {remote_zip_file} ."
@@ -89,8 +89,7 @@ def gather_stats(hosts, username, workload, config):
 
         # Unzip the stats file
         try:
-            if not os.path.exists(local_unzip_dir):
-                os.makedirs(local_unzip_dir)
+            os.makedirs(local_unzip_dir, exist_ok=True)
             with zipfile.ZipFile(local_zip_file, 'r') as zip_ref:
                 zip_ref.extractall(local_unzip_dir)
             print(f"Successfully unzipped stats for {host} to {local_unzip_dir}")
