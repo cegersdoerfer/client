@@ -104,6 +104,7 @@ def configure_cluster(config, username):
 def main(config_file):
     username = "root"  # You might want to change this or prompt for it
     if DEBUG:
+        print("RUNNING IN DEBUG MODE with debug_cluster_config.json")
         config = parse_config('debug_cluster_config.json')
     else:
         config = parse_config(config_file)

@@ -129,6 +129,7 @@ def stop_remote_processes(processes, username):
 def start_local_run_workloads(workload, interference_level):
     global DEBUG
     if DEBUG:
+        print("RUNNING IN DEBUG MODE")
         process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", interference_level, "--target_host", "--debug"], env=os.environ)
     else:
         process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", interference_level, "--target_host"], env=os.environ)
