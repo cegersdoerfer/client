@@ -3,7 +3,6 @@ import paramiko
 import subprocess
 import argparse
 
-CONFIG_FILE = "cluster_config.json"
 
 def parse_config(config_file):
     with open(config_file, 'r') as f:
@@ -102,14 +101,23 @@ def configure_cluster(config, username):
     install_iosense(target_client, username, 'client', config['client'], local=True)
     overwrite_io500_script(target_client, username, config['client'], local=True)
 
-def main(args):
+def main(config_file):
     username = "root"  # You might want to change this or prompt for it
-    config = parse_config(args.config)
+    if DEBUG:
+        config = parse_config('debug_cluster_config.json')
+    else:
+        config = parse_config(config_file)
     configure_cluster(config, username)
     print("Cluster configuration completed.")
 
 if __name__ == "__main__":
+    global DEBUG
+    DEBUG = False
+    CONFIG_FILE = "cluster_config.json"
     parser = argparse.ArgumentParser(description="Install and configure the iosense on the cluster.")
     parser.add_argument("--config", type=str, default=CONFIG_FILE, help="Path to the cluster configuration file.")
+    parser.add_argument("--debug", action="store_true", help="Run in debug mode")
     args = parser.parse_args()
-    main(args)
+    if args.debug:
+        DEBUG = True
+    main(args.config)

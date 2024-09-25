@@ -195,6 +195,10 @@ def run_application_workload(config, app_name, interference_level):
             sys.exit(1)
         try:
             for config_file in config_files:
+                if DEBUG:
+                    if not "debug" in config_file:
+                        print(f"Skipping {config_file} because it is not a debug config")
+                        continue
                 print(f"Running IO500 with configuration: {config_file}")
                 command = f"{run_script} {config_file} true"
                 print(f"Running command: {command}")
@@ -215,12 +219,15 @@ def run_application_workload(config, app_name, interference_level):
         sys.exit(1)
 
 def main(config):
+    global DEBUG
     parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
     parser.add_argument('--target_host', action='store_true', help='Target host to run the workload on')
     parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
     parser.add_argument('--app', type=str, help='Application workload to run')
-
+    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
     args = parser.parse_args()
+    if args.debug:
+        DEBUG = True
 
     if not args.target_host:
         if args.interference_level > 0:

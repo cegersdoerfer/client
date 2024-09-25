@@ -6,6 +6,7 @@ import json
 import os
 import zipfile
 import datetime
+import argparse
 
 
 collect_stats_processes = []
@@ -126,7 +127,11 @@ def stop_remote_processes(processes, username):
             print(f"Stopped process {pid} on {host}")
 
 def start_local_run_workloads(workload, interference_level):
-    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", interference_level, "--target_host"], env=os.environ)
+    global DEBUG
+    if DEBUG:
+        process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", interference_level, "--target_host", "--debug"], env=os.environ)
+    else:
+        process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", interference_level, "--target_host"], env=os.environ)
     return process
 
 def signal_handler(sig, frame):
@@ -145,6 +150,13 @@ def cleanup():
         collect_stats_processes.clear()
 
 def main():
+    global DEBUG
+    parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
+    parser.add_argument('--debug', action='store_true', help='Run in debug mode')
+    args = parser.parse_args()
+    if args.debug:
+        DEBUG = True
+
     global username
     workload = "IO500"
     username = "root"
