@@ -59,7 +59,7 @@ def gather_stats(hosts, username, workload, config):
     for host in hosts:
         zip_file_name = f"{host}_stats.zip"
         remote_stats_dir = f"{server_config['stats_log_dir']}"
-        remote_zip_file = f"/tmp/{zip_file_name}"
+        remote_zip_file = f"{server_config['zip_logs_dir']}/{zip_file_name}"
         local_zip_file = os.path.join(local_stats_dir, zip_file_name)
         local_unzip_dir = os.path.join(local_stats_dir, host)
         

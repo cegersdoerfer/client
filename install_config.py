@@ -57,6 +57,7 @@ def install_iosense(host, username, host_type, host_type_config, local=False):
         permission_commands.append(f"chmod +x {host_type_config['install_dir']}/collect_stats.sh")
         dir_commands.append(f"mkdir -p {host_type_config['install_dir']}")
         dir_commands.append(f"mkdir -p {host_type_config['stats_log_dir']}")
+        dir_commands.append(f"mkdir -p {host_type_config['zip_logs_dir']}")
 
     
     if local:

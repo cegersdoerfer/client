@@ -10,6 +10,7 @@
     "server": {
         "install_dir": "/custom-install/iosense/server",
         "stats_log_dir": "/custom-install/iosense/stats",
+        "zip_logs_dir": "/custom-install/iosense/zip_logs",
         "stats_interval": 0.1
     },
     "data_dir": "/custom-install/iosense/data"
