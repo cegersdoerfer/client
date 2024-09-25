@@ -200,9 +200,13 @@ def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interfere
     print(f"Starting to move Darshan log files from {darshan_log_dir} to {target_dir}")
     for file in os.listdir(darshan_log_dir):
         if file.endswith(".darshan"):
+            print(f"file: {file}")
             old_path = os.path.join(darshan_log_dir, file)
+            print(f"old path: {old_path}")
             new_name = f"{config_ini}_{idx}.darshan"
+            print(f"new name: {new_name}")
             new_path = os.path.join(target_dir, new_name)
+            print(f"new path: {new_path}")
             print(f"Moving file: {old_path} -> {new_path}")
             shutil.move(old_path, new_path)
             idx += 1
