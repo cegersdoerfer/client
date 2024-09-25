@@ -20,10 +20,13 @@ def load_config():
             config = json.load(f)
             if "debug" in config:
                 if config["debug"]:
+                    print("DEBUG was set to true in the config file")
                     DEBUG = True
                 else:
+                    print("DEBUG was set to false in the config file")
                     DEBUG = False
             else:
+                print("DEBUG was not set in the config file")
                 DEBUG = None
             return config
     else:
