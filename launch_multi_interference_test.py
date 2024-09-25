@@ -12,12 +12,12 @@ import argparse
 collect_stats_processes = []
 run_workloads_processes = []
 
-CONFIG_FILE = "cluster_config.json"
+CONFIG_FILE = {"standard": "cluster_config.json", "debug": "debug_cluster_config.json"}
 
-def parse_config():
-    with open(CONFIG_FILE, 'r') as f:
+def parse_config(config_type):
+    with open(CONFIG_FILE[config_type], 'r') as f:
         config = json.load(f)
-    os.environ["IOSENSE_CONFIG_FILE"] = CONFIG_FILE
+    os.environ["IOSENSE_CONFIG_FILE"] = CONFIG_FILE[config_type]
     return config
 
 def run_remote_command(host, username, command):
@@ -158,7 +158,9 @@ def main():
     username = "root"
     if DEBUG:
         print("RUNNING IN DEBUG MODE")
-    config = parse_config()
+        config = parse_config("debug")
+    else:
+        config = parse_config("standard")
     os.environ["IOSENSE_LOG_TIMESTAMP"] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Start collect_stats.sh on mdt and osts
     server_hosts = config['mds'] + config['oss']
