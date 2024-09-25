@@ -35,7 +35,7 @@ def run_local_command(command):
         return '', f"Local command failed: {e}", -1
 
 def overwrite_io500_script(host, username, client_config, local=False):
-    command = f"cp ./io500.sh {client_config['install_dir']}/workloads/IO500/io500.sh"
+    command = f"cp {client_config['install_dir']}/workloads/IO500/io500.sh /custom-install/benchmarks/io500/io500.sh"
     if local:
         output, error, exit_status = run_local_command(command)
     else:
