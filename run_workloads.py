@@ -109,8 +109,9 @@ def start_io500_process(run_script, sample_dict):
     try:
         sampled_config_file = sample_config_file(sample_dict)
         print(f"Starting IO500 with configuration: {sampled_config_file}")
-
-        p = subprocess.Popen([run_script, sampled_config_file], shell=True, env=os.environ)
+        command = f"{run_script} {sampled_config_file}"
+        print(f"Running command: {command}")
+        p = subprocess.Popen(command, shell=True, env=os.environ)
         print(f"Started IO500 process with PID {p.pid}")
         return p
     except Exception as e:
@@ -195,8 +196,9 @@ def run_application_workload(config, app_name, interference_level):
         try:
             for config_file in config_files:
                 print(f"Running IO500 with configuration: {config_file}")
-                print()
-                p = subprocess.Popen([run_script, config_file, "true"], shell=True, env=os.environ)
+                command = f"{run_script} {config_file} true"
+                print(f"Running command: {command}")
+                p = subprocess.Popen(command, shell=True, env=os.environ)
                 retcode = p.wait()
                 if retcode != 0:
                     print(f"IO500 process exited with return code {retcode}")
