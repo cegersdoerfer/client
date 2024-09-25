@@ -158,24 +158,39 @@ def get_config_files(dir_path):
 
 
 def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interference_level):
+    print(f"Starting to gather Darshan logs for workload: {workload}, config: {config_ini}, interference level: {interference_level}")
+    
     day, month, year = datetime.datetime.now().day, datetime.datetime.now().month, datetime.datetime.now().year
     darshan_log_dir = f"{darshan_log_dir}/{year}/{month}/{day}"
+    print(f"Darshan log directory: {darshan_log_dir}")
+
     if "IOSENSE_LOG_TIMESTAMP" in os.environ:
         timestamp_dir = os.environ["IOSENSE_LOG_TIMESTAMP"]
+        print(f"Using timestamp directory: {timestamp_dir}")
     else:
         print("Error: IOSENSE_LOG_TIMESTAMP environment variable is not set.")
         sys.exit(1)
+
     target_dir = f"{config['data_dir']}/{workload}/darshan_logs/{timestamp_dir}/interference_level_{interference_level}"
+    print(f"Target directory for logs: {target_dir}")
+
     if not os.path.exists(target_dir):
+        print(f"Creating target directory: {target_dir}")
         os.makedirs(target_dir)
 
     # move all darshan logs to the target dir
     idx = 0
+    print(f"Starting to move Darshan log files from {darshan_log_dir} to {target_dir}")
     for file in os.listdir(darshan_log_dir):
         if file.endswith(".darshan"):
+            old_path = os.path.join(darshan_log_dir, file)
             new_name = f"{config_ini}_{idx}.darshan"
-            shutil.move(os.path.join(darshan_log_dir, file), os.path.join(target_dir, new_name))
+            new_path = os.path.join(target_dir, new_name)
+            print(f"Moving file: {old_path} -> {new_path}")
+            shutil.move(old_path, new_path)
             idx += 1
+
+    print(f"Finished gathering Darshan logs. Moved {idx} files.")
 
 
 def run_application_workload(config, app_name, interference_level):
