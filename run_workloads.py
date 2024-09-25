@@ -18,6 +18,7 @@ def load_config():
     if "IOSENSE_CONFIG_FILE" in os.environ:
         with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
             config = json.load(f)
+            print("config content: ", config)
             if "debug" in config:
                 if config["debug"]:
                     print("DEBUG was set to true in the config file")
