@@ -243,6 +243,7 @@ def run_application_workload(config, app_name, interference_level):
         sys.exit(1)
 
 def main(args):
+    global DEBUG
     config = load_config()
     if not args.target_host:
         if args.interference_level > 0:
@@ -256,6 +257,5 @@ if __name__ == "__main__":
     parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
     parser.add_argument('--app', type=str, help='Application workload to run')
     args = parser.parse_args()
-
 
     main(args)
