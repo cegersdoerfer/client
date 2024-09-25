@@ -218,9 +218,9 @@ def main(config):
 
     args = parser.parse_args()
 
-    if args.interference_level > 0:
-        run_interference_workload(config, args.interference_level)
-    run_application_workload(config, args.app, args.interference_level)
+    if int(args.interference_level) > 0:
+        run_interference_workload(config, int(args.interference_level))
+    run_application_workload(config, args.app, int(args.interference_level))
 
 if __name__ == "__main__":
     config = load_config()
