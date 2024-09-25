@@ -19,7 +19,12 @@ def load_config():
         with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
             config = json.load(f)
             if "debug" in config:
-                DEBUG = config["debug"]
+                if config["debug"] == "true":
+                    DEBUG = True
+                else:
+                    DEBUG = False
+            else:
+                DEBUG = None
             return config
     else:
         print("Error: iosense_config environment variable is not set.")
@@ -207,7 +212,6 @@ def run_application_workload(config, app_name, interference_level):
     """
     print(f"Starting application workload: {app_name}")
     global DEBUG
-    print(f"DEBUG: {DEBUG}")
     if app_name == "IO500":
         client_root = config['client']['install_dir']
         run_script = os.path.join(client_root, "workloads/IO500/run.sh")
@@ -243,7 +247,6 @@ def run_application_workload(config, app_name, interference_level):
         sys.exit(1)
 
 def main(args):
-    global DEBUG
     config = load_config()
     if not args.target_host:
         if args.interference_level > 0:
