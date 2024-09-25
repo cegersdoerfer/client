@@ -195,7 +195,8 @@ def run_application_workload(config, app_name, interference_level):
         try:
             for config_file in config_files:
                 print(f"Running IO500 with configuration: {config_file}")
-                p = subprocess.Popen([run_script, config_file])
+                print()
+                p = subprocess.Popen([run_script, config_file, "true"])
                 retcode = p.wait()
                 if retcode != 0:
                     print(f"IO500 process exited with return code {retcode}")
