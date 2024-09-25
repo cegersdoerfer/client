@@ -45,16 +45,19 @@ def overwrite_io500_script(host, username, client_config, local=False):
 
 def install_iosense(host, username, host_type, host_type_config, local=False):
     permission_commands = []
+    dir_commands = []
     if host_type == 'client':
         repo_url = "https://github.com/cegersdoerfer/client.git"
         permission_commands.append(f"chmod +x {host_type_config['install_dir']}/run_workloads.py")
         permission_commands.append(f"chmod +x {host_type_config['install_dir']}/workloads/IO500/run.sh")
         permission_commands.append(f"chmod +x {host_type_config['install_dir']}/workloads/IO500/io500.sh")
-        
+        dir_commands.append(f"mkdir -p {host_type_config['install_dir']}")
     else:
         repo_url = "https://github.com/cegersdoerfer/server.git"
         permission_commands.append(f"chmod +x {host_type_config['install_dir']}/collect_stats.sh")
-    install_dir = host_type_config['install_dir']
+        dir_commands.append(f"mkdir -p {host_type_config['install_dir']}")
+        dir_commands.append(f"mkdir -p {host_type_config['stats_log_dir']}")
+
     
     if local:
         permission_commands.append(f"chmod +x ./launch_multi_interference_test.py")
@@ -64,7 +67,10 @@ def install_iosense(host, username, host_type, host_type_config, local=False):
         command = " && ".join(permission_commands)
         output, error, exit_status = run_local_command(command)
     else:
-        command = f"rm -rf {install_dir} && mkdir -p {install_dir} && git clone {repo_url} {install_dir}"
+        install_dir = host_type_config['install_dir']
+        command = f"rm -rf {install_dir} && git clone {repo_url} {install_dir}"
+        for dir_command in dir_commands:
+            command += f" && {dir_command}"
         for permission_command in permission_commands:
             command += f" && {permission_command}"
         output, error, exit_status = run_remote_command(host, username, command)
