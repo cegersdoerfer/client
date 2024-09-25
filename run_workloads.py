@@ -171,6 +171,7 @@ def get_config_files(dir_path):
 
 
 def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interference_level):
+    config_ini = os.path.basename(config_ini).split(".")[0]
     print(f"Starting to gather Darshan logs for workload: {workload}, config: {config_ini}, interference level: {interference_level}")
     
     day, month, year = datetime.datetime.now().day, datetime.datetime.now().month, datetime.datetime.now().year
