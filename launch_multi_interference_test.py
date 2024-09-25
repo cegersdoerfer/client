@@ -149,7 +149,7 @@ def main():
     config = parse_config()
     os.environ["IOSENSE_LOG_TIMESTAMP"] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Start collect_stats.sh on mdt and osts
-    server_hosts = config['mdts'] + config['osts']
+    server_hosts = config['mds'] + config['oss']
     # Register signal handler
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
