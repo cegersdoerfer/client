@@ -205,9 +205,9 @@ def run_application_workload(config, app_name, interference_level):
     """
     Run the specified application workload.
     """
-    global DEBUG
     print(f"Starting application workload: {app_name}")
-
+    global DEBUG
+    print(f"DEBUG: {DEBUG}")
     if app_name == "IO500":
         client_root = config['client']['install_dir']
         run_script = os.path.join(client_root, "workloads/IO500/run.sh")
