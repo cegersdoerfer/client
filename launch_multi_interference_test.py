@@ -125,8 +125,8 @@ def stop_remote_processes(processes, username):
         else:
             print(f"Stopped process {pid} on {host}")
 
-def start_local_run_workloads(workload):
-    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload], env=os.environ)
+def start_local_run_workloads(workload, interference_level):
+    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", interference_level, "--target_host"], env=os.environ)
     return process
 
 def signal_handler(sig, frame):
@@ -163,10 +163,11 @@ def main():
         print("Starting collect_stats.sh on servers...")
         start_collect_stats(server_hosts, username, config['server'])
         print(f"\n=== Starting interference level {interference_level} ===")
-        print(f"Starting run_workloads.py on remote clients with interference level {interference_level}...")
-        start_run_workloads(config['interference_clients'], username, interference_level, config['client'])
+        if interference_level > 0:
+            print(f"Starting run_workloads.py on remote clients with interference level {interference_level}...")
+            start_run_workloads(config['interference_clients'], username, interference_level, config['client'])
         print(f"Starting run_workloads.py locally with workload {workload}...")
-        local_process = start_local_run_workloads(workload)
+        local_process = start_local_run_workloads(workload, interference_level)
         try:
             # Wait for local_process to complete
             local_process.wait()

@@ -3,7 +3,7 @@
     "oss": ["server1", "server2", "server3", "server4", "server5"],
     "interference_clients": ["node1"],
     "target_client": "node0",
-    "darshan_log_dir": "/darshan-logs",
+    "darshan_log_dir": "/custom-install/darshan-logs",
     "client": {
         "install_dir": "/custom-install/iosense/client"
     },

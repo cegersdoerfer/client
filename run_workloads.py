@@ -216,15 +216,17 @@ def run_application_workload(config, app_name, interference_level):
 
 def main(config):
     parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
+    parser.add_argument('--target_host', action='store_true', help='Target host to run the workload on')
     parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
     parser.add_argument('--app', type=str, help='Application workload to run')
 
     args = parser.parse_args()
 
-    if args.interference_level is not None:
+    if not args.target_host:
         if args.interference_level > 0:
             run_interference_workload(config, args.interference_level)
-    run_application_workload(config, args.app, args.interference_level)
+    else:
+        run_application_workload(config, args.app, args.interference_level)
 
 if __name__ == "__main__":
     config = load_config()
