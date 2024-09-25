@@ -152,6 +152,8 @@ def main():
     args = parser.parse_args()
     if args.debug:
         DEBUG = True
+    else:
+        DEBUG = False
 
     global username
     workload = "IO500"
