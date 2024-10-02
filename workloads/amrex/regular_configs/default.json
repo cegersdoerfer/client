@@ -12,7 +12,7 @@
 
         }
     },
-    "directory": "/mnt/IOLustre/h5tests",
+    "directory": "/custom-install/benchmarks/h5bench/output_logs",
     "benchmarks": [
         {
             "benchmark": "amrex",
@@ -20,7 +20,7 @@
             "configuration": {
                 "ncells": "64",
                 "max_grid_size": "8",
-                "nlevs": "1",
+                "nlevs": "10",
                 "ncomp": "24",
                 "nppc": "8",
                 "nplotfile": "2",
@@ -36,7 +36,7 @@
             "configuration": {
                 "ncells": "64",
                 "max_grid_size": "8",
-                "nlevs": "1",
+                "nlevs": "10",
                 "ncomp": "24",
                 "nppc": "8",
                 "nplotfile": "2",
