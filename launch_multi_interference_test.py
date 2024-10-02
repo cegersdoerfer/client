@@ -125,8 +125,8 @@ def stop_remote_processes(processes, username):
         else:
             print(f"Stopped process {pid} on {host}")
 
-def start_local_run_workloads(workload, interference_level):
-    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", str(interference_level), "--target_host"], env=os.environ)
+def start_local_run_workloads(workload, interference_level, repetition_idx):
+    process = subprocess.Popen(["python", "run_workloads.py", "--app", workload, "--interference_level", str(interference_level), "--target_host", "--repetition_idx", str(repetition_idx)], env=os.environ)
     return process
 
 def signal_handler(sig, frame):
@@ -171,30 +171,33 @@ def main():
 
     # Interference levels from 1 to 5
     interference_levels = [0, 1, 3, 5]
-
     for interference_level in interference_levels:
-        print("Starting collect_stats.sh on servers...")
-        start_collect_stats(server_hosts, username, config['server'])
-        print(f"\n=== Starting interference level {interference_level} ===")
-        if interference_level > 0:
-            print(f"Starting run_workloads.py on remote clients with interference level {interference_level}...")
-            start_run_workloads(config['interference_clients'], username, interference_level, config['client'])
-        print(f"Starting run_workloads.py locally with workload {workload}...")
-        local_process = start_local_run_workloads(workload, interference_level)
-        try:
-            # Wait for local_process to complete
-            local_process.wait()
-            print(f"Local run_workloads.py process completed for interference level {interference_level}.")
-        except Exception as e:
-            print(f"Exception: {e}")
-        finally:
-            print(f"Stopping remote run_workloads.py processes for interference level {interference_level}...")
-            stop_remote_processes(run_workloads_processes, username)
-            run_workloads_processes.clear()
-            print(f"Stopping collect_stats.sh on servers for interference level {interference_level}...")
-            stop_remote_processes(collect_stats_processes, username)
-            gather_stats(server_hosts, username, workload, config)
-            collect_stats_processes.clear()
+        num_repetitions = 5
+        if interference_level == 0:
+            num_repetitions = 1
+        for repetition_idx in range(num_repetitions):
+            print("Starting collect_stats.sh on servers...")
+            start_collect_stats(server_hosts, username, config['server'])
+            print(f"\n=== Starting interference level {interference_level} ===")
+            if interference_level > 0:
+                print(f"Starting run_workloads.py on remote clients with interference level {interference_level}...")
+                start_run_workloads(config['interference_clients'], username, interference_level, config['client'])
+            print(f"Starting run_workloads.py locally with workload {workload}...")
+            local_process = start_local_run_workloads(workload, interference_level, repetition_idx)
+            try:
+                # Wait for local_process to complete
+                local_process.wait()
+                print(f"Local run_workloads.py process completed for interference level {interference_level}.")
+            except Exception as e:
+                print(f"Exception: {e}")
+            finally:
+                print(f"Stopping remote run_workloads.py processes for interference level {interference_level}...")
+                stop_remote_processes(run_workloads_processes, username)
+                run_workloads_processes.clear()
+                print(f"Stopping collect_stats.sh on servers for interference level {interference_level}...")
+                stop_remote_processes(collect_stats_processes, username)
+                gather_stats(server_hosts, username, workload, config)
+                collect_stats_processes.clear()
     print("\nAll interference levels completed.")
     cleanup()
 

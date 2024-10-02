@@ -170,7 +170,7 @@ def get_config_files(dir_path):
         return []
 
 
-def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interference_level):
+def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interference_level, repetition_idx):
     config_ini = os.path.basename(config_ini).split(".")[0]
     print(f"Starting to gather Darshan logs for workload: {workload}, config: {config_ini}, interference level: {interference_level}")
     
@@ -189,7 +189,7 @@ def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interfere
     print(f"Config ini: {config_ini}")
     print(f"Interference level: {interference_level}")
     
-    target_dir = f"{config['data_dir']}/{workload}/darshan_logs/{timestamp_dir}/interference_level_{interference_level}"
+    target_dir = f"{config['data_dir']}/{workload}/darshan_logs/{timestamp_dir}/interference_level_{interference_level}/{repetition_idx}"
     print(f"Target directory for logs: {target_dir}")
 
     if not os.path.exists(target_dir):
@@ -215,7 +215,7 @@ def gather_darshan_logs(darshan_log_dir, workload, config, config_ini, interfere
     print(f"Finished gathering Darshan logs. Moved {idx} files.")
 
 
-def run_application_workload(config, app_name, interference_level):
+def run_application_workload(config, app_name, interference_level, repetition_idx):
     """
     Run the specified application workload.
     """
@@ -236,6 +236,10 @@ def run_application_workload(config, app_name, interference_level):
                     if not "debug" in config_file:
                         print(f"Skipping {config_file} because it is not a debug config")
                         continue
+                else:
+                    if "debug" in config_file:
+                        print(f"Skipping {config_file} because it is a debug config")
+                        continue
                 print(f"Running IO500 with configuration: {config_file}")
                 command = f"{run_script} {config_file} true"
                 print(f"Running command: {command}")
@@ -246,7 +250,7 @@ def run_application_workload(config, app_name, interference_level):
                     sys.exit(retcode)
                 else:
                     print(f"Completed IO500 with configuration: {config_file}")
-                    gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level)
+                    gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level, repetition_idx)
             print("Application workload completed.")
         except Exception as e:
             print(f"Error during application workload: {e}")
@@ -261,13 +265,14 @@ def main(args):
         if args.interference_level > 0:
             run_interference_workload(config, args.interference_level)
     else:
-        run_application_workload(config, args.app, args.interference_level)
+        run_application_workload(config, args.app, args.interference_level, args.repetition_idx)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Run workloads for cluster testing.')
     parser.add_argument('--target_host', action='store_true', help='Target host to run the workload on')
     parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
     parser.add_argument('--app', type=str, help='Application workload to run')
+    parser.add_argument('--repetition_idx', type=int, help='Repetition index (integer)')
     args = parser.parse_args()
 
     main(args)
