@@ -20,7 +20,7 @@
             "configuration": {
                 "ncells": "64",
                 "max_grid_size": "8",
-                "nlevs": "10",
+                "nlevs": "2",
                 "ncomp": "24",
                 "nppc": "64",
                 "nplotfile": "4",
@@ -36,7 +36,7 @@
             "configuration": {
                 "ncells": "64",
                 "max_grid_size": "8",
-                "nlevs": "10",
+                "nlevs": "2",
                 "ncomp": "24",
                 "nppc": "64",
                 "nplotfile": "4",
