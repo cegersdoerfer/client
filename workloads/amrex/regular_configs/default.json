@@ -1,6 +1,6 @@
 {
     "mpi": {
-        "command": "mpirun",
+        "command": "mpiexec",
         "ranks": "4",
         "configuration": "-np 4 -env DXT_ENABLE_IO_TRACE 1 -env LD_PRELOAD /custom-install/hpc-tools/pnetcdf-1.13.0/install/lib/libpnetcdf.so:/custom-install/hpc-tools/hdf5-1.14.4-3/install/lib/libhdf5.so:/custom-install/io-profilers/darshan-3.4.5/darshan-runtime/install/lib/libdarshan.so"
     },
@@ -22,8 +22,8 @@
                 "max_grid_size": "8",
                 "nlevs": "1",
                 "ncomp": "24",
-                "nppc": "64",
-                "nplotfile": "4",
+                "nppc": "128",
+                "nplotfile": "8",
                 "nparticlefile": "2",
                 "sleeptime": "2",
                 "restart_check": "1",
