@@ -21,8 +21,11 @@ def update_ini_files(directory):
                 #        # Set the API to POSIX for all mdtest sections
                 #        config[section]['API'] = 'POSIX'
 
-                if 'debug' in config:
-                    config['debug']['stonewall-time'] = '30'
+                for section in config:
+                    if 'mdworkbench-' in section:
+                        # remove the api parameter
+                        if 'API' in config[section]:
+                            del config[section]['API']
 
                 with open(file_path, 'w') as configfile:
                     config.write(configfile)
