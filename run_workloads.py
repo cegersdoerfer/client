@@ -163,7 +163,7 @@ def get_config_files(dir_path):
     """
     try:
         files = [os.path.join(dir_path, f) for f in os.listdir(dir_path)
-                 if os.path.isfile(os.path.join(dir_path, f)) and f.endswith(".json")]
+                 if os.path.isfile(os.path.join(dir_path, f))]
         return files
     except Exception as e:
         print(f"Error accessing configuration directory {dir_path}: {e}")

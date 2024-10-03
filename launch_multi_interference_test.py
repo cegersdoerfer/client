@@ -164,7 +164,7 @@ def main():
         DEBUG = False
 
     global username
-    workload = "amrex"
+    workload = "IO500"
     username = "root"
     if DEBUG:
         print("RUNNING IN DEBUG MODE")
