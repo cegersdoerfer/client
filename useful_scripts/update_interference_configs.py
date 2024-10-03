@@ -9,9 +9,9 @@ def update_ini_files(directory):
                 config = configparser.ConfigParser()
                 config.read(file_path)
 
-                #if 'global' in config:
-                #    config['global']['datadir'] = '/mnt/hasanfs/io500_runs/datafiles_interference'
-                #    config['global']['resultdir'] = '/mnt/hasanfs/io500_runs/results_interference'
+                if 'global' in config:
+                    config['global']['datadir'] = '/mnt/hasanfs/io500_data/datafiles_interference'
+                    config['global']['resultdir'] = '/mnt/hasanfs/io500_data/results_interference'
                 
                 #if 'ior-easy' in config:
                 #    config['ior-easy']['blockSize'] = '10g'
@@ -20,12 +20,6 @@ def update_ini_files(directory):
                 #    if 'mdt' in section or 'mdw' in section:
                 #        # Set the API to POSIX for all mdtest sections
                 #        config[section]['API'] = 'POSIX'
-
-                for section in config:
-                    if 'mdworkbench-' in section:
-                        # remove the api parameter
-                        if 'API' in config[section]:
-                            del config[section]['API']
 
                 with open(file_path, 'w') as configfile:
                     config.write(configfile)

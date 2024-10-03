@@ -7,7 +7,7 @@ import os
 import zipfile
 import datetime
 import argparse
-
+import shutil
 
 collect_stats_processes = []
 run_workloads_processes = []
@@ -122,6 +122,13 @@ def start_run_workloads(hosts, username, interference_level, client_config, conf
             else:
                 print(f"Failed to get PID for run_workloads.py on {host}: {output}")
 
+def remove_created_files(workload):
+    mnt_dir = "/mnt/hasanfs"
+    workload_name = workload.lower()
+    data_dir = f"{mnt_dir}/{workload_name}_data"
+    if os.path.exists(data_dir):
+        # remove all files in the data_dir recursively
+        subprocess.run(["rm", "-rf", f"{data_dir}/*"])
 
 def stop_remote_processes(processes, username):
     for proc in processes:
@@ -209,6 +216,7 @@ def main():
                 print(f"Stopping collect_stats.sh on servers for interference level {interference_level}...")
                 stop_remote_processes(collect_stats_processes, username)
                 gather_stats(server_hosts, username, workload, config)
+                remove_created_files(workload)
                 collect_stats_processes.clear()
     print("\nAll interference levels completed.")
     cleanup()
