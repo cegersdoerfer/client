@@ -27,6 +27,8 @@ def load_config(config_path):
                     else:
                         print("DEBUG was set to false in the config file")
                         DEBUG = False
+                else:
+                    DEBUG = None
         else:
             DEBUG = None
             config = json.load(config_path)
