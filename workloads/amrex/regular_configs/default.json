@@ -12,7 +12,7 @@
 
         }
     },
-    "directory": "/custom-install/benchmarks/h5bench/output_logs",
+    "directory": "/mnt/hasanfs/amrex_data",
     "benchmarks": [
         {
             "benchmark": "amrex",
