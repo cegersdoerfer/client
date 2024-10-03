@@ -127,6 +127,7 @@ def remove_created_files(workload):
     workload_name = workload.lower()
     data_dir = f"{mnt_dir}/{workload_name}_data"
     if os.path.exists(data_dir):
+        print(f"Removing all files in {data_dir}...")
         # remove all files in the data_dir recursively
         subprocess.run(["rm", "-rf", f"{data_dir}/*"])
 
