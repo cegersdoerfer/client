@@ -179,9 +179,10 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     # Interference levels from 1 to 5
-    interference_levels = [0, 1, 3, 5, 7]
+    interference_levels = [0, 7, 9]
+    assert 0 in interference_levels, "Interference level 0 is required"
     for interference_level in interference_levels:
-        num_repetitions = 6
+        num_repetitions = 3
         if interference_level == 0:
             num_repetitions = 1
         for repetition_idx in range(num_repetitions):
