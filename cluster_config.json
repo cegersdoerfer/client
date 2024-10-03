@@ -15,5 +15,5 @@
         "zip_logs_dir": "/custom-install/iosense/zip_logs",
         "stats_interval": 0.1
     },
-    "data_dir": "/mnt/hasanfs/iosense/data"
+    "data_dir": "/custom-install/iosense/data"
 }
