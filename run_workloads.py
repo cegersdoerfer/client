@@ -66,6 +66,7 @@ def run_interference_workload(config, interference_level):
     try:
         # Start initial IO500 processes
         for _ in range(interference_level):
+            print(f"Starting IO500 process {_}")
             p = start_io500_process(run_script, sample_dict)
             if p:
                 processes.append(p)
@@ -122,7 +123,7 @@ def start_io500_process(run_script, sample_dict):
     try:
         sampled_config_file = sample_config_file(sample_dict)
         print(f"Starting IO500 with configuration: {sampled_config_file}")
-        command = f"{run_script} {sampled_config_file}"
+        command = f"{run_script} {sampled_config_file} > output.txt"
         print(f"Running command: {command}")
         p = subprocess.Popen(command, shell=True, env=os.environ)
         print(f"Started IO500 process with PID {p.pid}")
