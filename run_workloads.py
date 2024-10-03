@@ -30,7 +30,8 @@ def load_config(config_path):
         else:
             DEBUG = None
             config = json.load(config_path)
-            return config
+
+        return config
     except Exception as e:
         print(f"Error loading config: {e}")
         sys.exit(1)
