@@ -13,25 +13,26 @@ import datetime
 
 terminate_flag = False
 
-def load_config():
+def load_config(config_path):
     global DEBUG
-    if "IOSENSE_CONFIG_FILE" in os.environ:
-        with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
-            config = json.load(f)
-            print("config content: ", config)
-            if "debug" in config:
-                if config["debug"]:
-                    print("DEBUG was set to true in the config file")
-                    DEBUG = True
-                else:
-                    print("DEBUG was set to false in the config file")
-                    DEBUG = False
-            else:
-                print("DEBUG was not set in the config file")
-                DEBUG = None
+    try:
+        if "IOSENSE_CONFIG_FILE" in os.environ:
+            with open(os.environ["IOSENSE_CONFIG_FILE"], "r") as f:
+                config = json.load(f)
+                print("config content: ", config)
+                if "debug" in config:
+                    if config["debug"]:
+                        print("DEBUG was set to true in the config file")
+                        DEBUG = True
+                    else:
+                        print("DEBUG was set to false in the config file")
+                        DEBUG = False
+        else:
+            DEBUG = None
+            config = json.load(config_path)
             return config
-    else:
-        print("Error: iosense_config environment variable is not set.")
+    except Exception as e:
+        print(f"Error loading config: {e}")
         sys.exit(1)
 
 def signal_handler(signum, frame):
@@ -264,7 +265,7 @@ def run_application_workload(config, app_name, interference_level, repetition_id
         sys.exit(1)
 
 def main(args):
-    config = load_config()
+    config = load_config(args.config)
     if not args.target_host:
         if args.interference_level > 0:
             random.seed(args.interference_level)
@@ -278,6 +279,7 @@ if __name__ == "__main__":
     parser.add_argument('--interference_level', type=int, help='Interference level (integer)')
     parser.add_argument('--app', type=str, help='Application workload to run')
     parser.add_argument('--repetition_idx', type=int, help='Repetition index (integer)')
+    parser.add_argument('--config', type=str, help='Path to the config file')
     args = parser.parse_args()
 
     main(args)

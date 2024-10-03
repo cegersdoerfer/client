@@ -107,11 +107,10 @@ def gather_stats(hosts, username, workload, config):
         except Exception as e:
             print(f"Error unzipping stats for {host}: {e}")
 
-def start_run_workloads(hosts, username, interference_level, client_config):
+def start_run_workloads(hosts, username, interference_level, client_config, config_path):
     global run_workloads_processes
     for host in hosts:
-        #command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} > /dev/null 2>&1 & echo $!"
-        command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} > output.txt"
+        command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} --config {config_path} > /dev/null 2>&1 & echo $!"
         output, error = run_remote_command(host, username, command)
         if error:
             print(f"Error starting run_workloads.py on {host}: {error}")
@@ -170,8 +169,10 @@ def main():
     if DEBUG:
         print("RUNNING IN DEBUG MODE")
         config = parse_config("debug")
+        config_path = os.path.join(config['client']['install_dir'], CONFIG_FILE["debug"])
     else:
         config = parse_config("standard")
+        config_path = os.path.join(config['client']['install_dir'], CONFIG_FILE["standard"])
     os.environ["IOSENSE_LOG_TIMESTAMP"] = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
     # Start collect_stats.sh on mdt and osts
     server_hosts = config['mds'] + config['oss']
@@ -192,7 +193,7 @@ def main():
             print(f"\n=== Starting interference level {interference_level} ===")
             if interference_level > 0:
                 print(f"Starting run_workloads.py on remote clients with interference level {interference_level}...")
-                start_run_workloads(config['interference_clients'], username, interference_level, config['client'])
+                start_run_workloads(config['interference_clients'], username, interference_level, config['client'], config_path)
             print(f"Starting run_workloads.py locally with workload {workload}...")
             local_process = start_local_run_workloads(workload, interference_level, repetition_idx)
             try:
