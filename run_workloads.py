@@ -111,9 +111,9 @@ def sample_config_file(sample_dict):
     """
     Sample a random configuration file from the specified directories.
     """
-    config_dir = random.choice(list(sample_dict.keys()))
+    config_dir = random.choice(list(sample_dict.keys()), seed=1)
     config_files = sample_dict[config_dir]
-    return random.choice(config_files)
+    return random.choice(config_files, seed=1)
 
 def start_io500_process(run_script, sample_dict):
     """
