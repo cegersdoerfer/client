@@ -111,9 +111,9 @@ def sample_config_file(sample_dict):
     """
     Sample a random configuration file from the specified directories.
     """
-    config_dir = random.choice(list(sample_dict.keys()), seed=1)
+    config_dir = random.choice(list(sample_dict.keys()))
     config_files = sample_dict[config_dir]
-    return random.choice(config_files, seed=1)
+    return random.choice(config_files)
 
 def start_io500_process(run_script, sample_dict):
     """
@@ -266,6 +266,7 @@ def main(args):
     config = load_config()
     if not args.target_host:
         if args.interference_level > 0:
+            random.seed(args.interference_level)
             run_interference_workload(config, args.interference_level)
     else:
         run_application_workload(config, args.app, args.interference_level, args.repetition_idx)
