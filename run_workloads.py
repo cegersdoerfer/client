@@ -31,7 +31,8 @@ def load_config(config_path):
                     DEBUG = None
         else:
             DEBUG = None
-            config = json.load(config_path)
+            with open(config_path, "r") as f:
+                config = json.load(f)
 
         return config
     except Exception as e:
