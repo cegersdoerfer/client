@@ -110,7 +110,8 @@ def gather_stats(hosts, username, workload, config):
 def start_run_workloads(hosts, username, interference_level, client_config, config_path):
     global run_workloads_processes
     for host in hosts:
-        command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} --config {config_path} > /dev/null 2>&1 & echo $!"
+        #command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} --config {config_path} > /dev/null 2>&1 & echo $!"
+        command = f"nohup python {client_config['install_dir']}/run_workloads.py --interference_level {interference_level} --config {config_path} > output.txt"
         output, error = run_remote_command(host, username, command)
         if error:
             print(f"Error starting run_workloads.py on {host}: {error}")
