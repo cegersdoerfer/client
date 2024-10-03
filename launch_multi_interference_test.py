@@ -82,6 +82,15 @@ def gather_stats(hosts, username, workload, config):
             sftp.get(remote_zip_file, local_zip_file)
             sftp.remove(remote_zip_file)  # Remove the zip file from the remote host
             sftp.close()
+            
+            # Clear the stats files on the remote host
+            clear_command = f"rm -rf {remote_stats_dir}/*"
+            output, error = run_remote_command(host, username, clear_command)
+            if error:
+                print(f"Error clearing stats on {host}: {error}")
+            else:
+                print(f"Successfully cleared stats on {host}")
+            
             ssh.close()
             print(f"Successfully gathered stats from {host} to {local_zip_file}")
         except Exception as e:
