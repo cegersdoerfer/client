@@ -8,6 +8,7 @@ import zipfile
 import datetime
 import argparse
 import shutil
+import time
 
 collect_stats_processes = []
 run_workloads_processes = []
@@ -132,8 +133,12 @@ def remove_created_files(workload):
         print(f"Running command: {command}")
         # remove all files in the data_dir recursively
         try:
+            start_time = time.time()
             subprocess.run(command, shell=True, check=True)
-            print("Files removed successfully.")
+            end_time = time.time()
+            print(f"Files removed successfully in {end_time - start_time} seconds.")
+            # sleep for 2 minutes to allow garbage collection
+            time.sleep(120)
         except subprocess.CalledProcessError as e:
             print(f"Error removing files in {data_dir}: {e}")
 
