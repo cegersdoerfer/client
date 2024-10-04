@@ -95,6 +95,12 @@ create_tarball() {
   echo "Created result tarball $tarball"
 }
 
+function cleanup {
+  echo "Cleaning up data directory: $io500_workdir"
+  rm -rf "$io500_workdir"
+  echo "Data directory removed."
+}
+
 function main {
   # These commands extract the 'datadir' and 'resultdir' from .ini file
   timestamp=$(date +%Y.%m.%d-%H.%M.%S)           # create a uniquifier
@@ -118,6 +124,7 @@ function main {
   fi
 
   create_tarball
+  cleanup
 }
 
 main
