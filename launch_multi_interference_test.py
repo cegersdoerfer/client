@@ -128,8 +128,15 @@ def remove_created_files(workload):
     data_dir = f"{mnt_dir}/{workload_name}_data"
     if os.path.exists(data_dir):
         print(f"Removing all files in {data_dir}...")
+        command = f"rm -rf {data_dir}/*"
+        print(f"Running command: {command}")
         # remove all files in the data_dir recursively
-        subprocess.run(["rm", "-rf", f"{data_dir}/*"])
+        try:
+            subprocess.run(["rm", "-rf", f"{data_dir}/*"])
+        except Exception as e:
+            print(f"Error removing files in {data_dir}: {e}")
+
+
 
 def stop_remote_processes(processes, username):
     for proc in processes:
