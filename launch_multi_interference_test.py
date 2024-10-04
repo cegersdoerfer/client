@@ -132,8 +132,9 @@ def remove_created_files(workload):
         print(f"Running command: {command}")
         # remove all files in the data_dir recursively
         try:
-            subprocess.run(["rm", "-rf", f"{data_dir}/*"], shell=True)
-        except Exception as e:
+            subprocess.run(command, shell=True, check=True)
+            print("Files removed successfully.")
+        except subprocess.CalledProcessError as e:
             print(f"Error removing files in {data_dir}: {e}")
 
 
