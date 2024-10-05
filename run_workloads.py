@@ -280,7 +280,7 @@ def main(args):
     config = load_config(args.config)
     if not args.target_host:
         if args.interference_level > 0:
-            random.seed(args.interference_level)
+            random.seed(args.interference_level+10)
             run_interference_workload(config, args.interference_level)
     else:
         run_application_workload(config, args.app, args.interference_level, args.repetition_idx)
