@@ -99,6 +99,7 @@ def configure_cluster(config, username):
     target_client = config['target_client']
     print(f"Configuring target client on {target_client}...")
     install_iosense(target_client, username, 'client', config['client'], local=True)
+    print(f"Overwriting io500.sh on {target_client}...")
     overwrite_io500_script(target_client, username, config['client'], local=True)
 
 def main(config_file):
