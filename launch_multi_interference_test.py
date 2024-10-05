@@ -137,8 +137,8 @@ def remove_created_files(workload):
             subprocess.run(command, shell=True, check=True)
             end_time = time.time()
             print(f"Files removed successfully in {end_time - start_time} seconds.")
-            # sleep for 2 minutes to allow garbage collection
-            time.sleep(120)
+            # sleep for 5 minutes to allow garbage collection
+            time.sleep(300)
         except subprocess.CalledProcessError as e:
             print(f"Error removing files in {data_dir}: {e}")
 
