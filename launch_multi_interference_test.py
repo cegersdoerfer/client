@@ -185,7 +185,7 @@ def main():
         DEBUG = False
 
     global username
-    workload = "IO500"
+    workload = "amrex"
     username = "root"
     if DEBUG:
         print("RUNNING IN DEBUG MODE")
@@ -205,7 +205,7 @@ def main():
     interference_levels = [0, 1, 2, 3]
     assert 0 in interference_levels, "Interference level 0 is required"
     for interference_level in interference_levels:
-        num_repetitions = 1
+        num_repetitions = 3
         if interference_level == 0:
             num_repetitions = 1
         for repetition_idx in range(num_repetitions):
