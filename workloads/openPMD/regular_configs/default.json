@@ -1,0 +1,37 @@
+{
+    "mpi": {
+        "command": "mpiexec",
+        "ranks": "4",
+        "configuration": "-np 4 -env DXT_ENABLE_IO_TRACE 1 -env LD_PRELOAD /custom-install/hpc-tools/pnetcdf-1.13.0/install/lib/libpnetcdf.so:/custom-install/hpc-tools/hdf5-1.14.4-3/install/lib/libhdf5.so:/custom-install/io-profilers/darshan-3.4.5/darshan-runtime/install/lib/libdarshan.so"
+    },
+    "vol": {
+
+    },
+    "file-system": {
+        "lustre": {
+
+        }
+    },
+    "directory": "/mnt/hasanfs/openpmd_data",
+    "benchmarks": [
+        {
+            "benchmark": "openpmd",
+            "configuration": {
+                "operation": "write",
+                "dim": "3",
+                "balanced": "true",
+                "ratio": "1",
+                "steps": "1",
+                "minBlock": "8 16 16",
+                "grid": "16 16 8"
+            }
+        },
+        {
+            "benchmark": "openpmd",
+            "configuration": {
+                "operation": "read",
+                "pattern": "sy"
+            }
+        }
+    ]
+}
