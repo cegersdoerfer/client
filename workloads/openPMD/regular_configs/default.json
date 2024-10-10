@@ -21,7 +21,7 @@
                 "dim": "3",
                 "balanced": "true",
                 "ratio": "1",
-                "steps": "20",
+                "steps": "100",
                 "minBlock": "32 16 16",
                 "grid": "16 16 32"
             }
