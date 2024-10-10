@@ -22,8 +22,8 @@
                 "balanced": "true",
                 "ratio": "1",
                 "steps": "10000",
-                "minBlock": "32 16 16",
-                "grid": "16 16 32"
+                "minBlock": "128 16 16",
+                "grid": "16 16 128"
             }
         },
         {
