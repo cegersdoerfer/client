@@ -246,6 +246,10 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     if not config_file.endswith(".json"):
                         print(f"Skipping {config_file} because it is not a json file")
                         continue
+                if app_name == "openpmd":
+                    if not config_file.endswith(".json"):
+                        print(f"Skipping {config_file} because it is not a json file")
+                        continue
                 if DEBUG:
                     if not "debug" in config_file:
                         print(f"Skipping {config_file} because it is not a debug config")

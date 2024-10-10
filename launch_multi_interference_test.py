@@ -185,7 +185,7 @@ def main():
         DEBUG = False
 
     global username
-    workload = "amrex"
+    workload = "openpmd"
     username = "root"
     if DEBUG:
         print("RUNNING IN DEBUG MODE")
