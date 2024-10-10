@@ -22,15 +22,15 @@
                 "balanced": "true",
                 "ratio": "1",
                 "steps": "10000",
-                "minBlock": "128 64 64",
-                "grid": "64 64 128"
+                "minBlock": "1024 512 512",
+                "grid": "512 512 1024"
             }
         },
         {
             "benchmark": "openpmd",
             "configuration": {
                 "operation": "read",
-                "pattern": "fy"
+                "pattern": "sy"
             }
         }
     ]
