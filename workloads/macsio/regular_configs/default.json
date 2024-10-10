@@ -20,7 +20,7 @@
             "configuration": {
                 "parallel_file_mode": "MIF 8",
                 "part_size": "1M",
-                "avg_num_parts": "2"
+                "avg_num_parts": "8"
             }
         }
     ]
