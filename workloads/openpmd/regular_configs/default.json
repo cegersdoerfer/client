@@ -21,7 +21,7 @@
                 "dim": "3",
                 "balanced": "true",
                 "ratio": "1",
-                "steps": "10000",
+                "steps": "100000000",
                 "minBlock": "1024 512 512",
                 "grid": "512 512 1024"
             }
