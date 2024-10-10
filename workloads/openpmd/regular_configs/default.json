@@ -5,7 +5,9 @@
         "configuration": "-np 4 -env DXT_ENABLE_IO_TRACE 1 -env LD_PRELOAD /custom-install/hpc-tools/pnetcdf-1.13.0/install/lib/libpnetcdf.so:/custom-install/hpc-tools/hdf5-1.14.4-3/install/lib/libhdf5.so:/custom-install/io-profilers/darshan-3.4.5/darshan-runtime/install/lib/libdarshan.so"
     },
     "vol": {
-
+        "library": "/custom-install/hpc-tools/vol-async/src:/custom-install/hpc-tools/vol-async/install/lib:/custom-install/hpc-tools/vol-async/argobots/install/lib:/custom-install/hpc-tools/hdf5-1.14.4-3/install:",
+        "path": "/custom-install/hpc-tools/vol-async/src",
+        "connector": "async under_vol=0;under_info={}"
     },
     "file-system": {
         "lustre": {
