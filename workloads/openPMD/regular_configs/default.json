@@ -30,7 +30,7 @@
             "benchmark": "openpmd",
             "configuration": {
                 "operation": "read",
-                "pattern": "sy"
+                "pattern": "fy"
             }
         }
     ]
