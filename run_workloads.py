@@ -242,11 +242,7 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     if not config_file.endswith(".ini"):
                         print(f"Skipping {config_file} because it is not an ini file")
                         continue
-                if app_name == "amrex":
-                    if not config_file.endswith(".json"):
-                        print(f"Skipping {config_file} because it is not a json file")
-                        continue
-                if app_name == "openpmd":
+                if app_name in ["amrex", "macsio", "e3sm", "openpmd"]:
                     if not config_file.endswith(".json"):
                         print(f"Skipping {config_file} because it is not a json file")
                         continue
