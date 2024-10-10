@@ -12,7 +12,7 @@
 
         }
     },
-    "directory": "/mnt/hasanfs/amrex_data",
+    "directory": "/mnt/hasanfs/e3sm_data",
     "benchmarks": [
         {
             "benchmark": "e3sm",

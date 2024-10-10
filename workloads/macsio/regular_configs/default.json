@@ -12,14 +12,15 @@
 
         }
     },
-    "directory": "/mnt/hasanfs/amrex_data",
+    "directory": "/mnt/hasanfs/macsio_data",
     "benchmarks": [
         {
             "benchmark": "macsio",
             "file": "test.h5",
             "configuration": {
                 "parallel_file_mode": "MIF 8",
-                "part_size": "1M"
+                "part_size": "1M",
+                "avg_num_parts": "2"
             }
         }
     ]
