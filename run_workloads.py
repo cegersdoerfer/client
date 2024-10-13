@@ -13,6 +13,8 @@ import datetime
 
 terminate_flag = False
 
+APPS = ["IO500", "amrex", "macsio", "e3sm", "openpmd"]
+
 def load_config(config_path):
     global DEBUG
     try:
@@ -227,7 +229,7 @@ def run_application_workload(config, app_name, interference_level, repetition_id
     """
     print(f"Starting application workload: {app_name}")
     global DEBUG
-    if app_name in ["IO500", "amrex"]:
+    if app_name in APPS:
         client_root = config['client']['install_dir']
         run_script = os.path.join(client_root, f"workloads/{app_name}/run.sh")
         config_dir = os.path.join(client_root, f"workloads/{app_name}/regular_configs")
@@ -242,7 +244,7 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     if not config_file.endswith(".ini"):
                         print(f"Skipping {config_file} because it is not an ini file")
                         continue
-                if app_name in ["amrex", "macsio", "e3sm", "openpmd"]:
+                if app_name in APPS[1:]:
                     if not config_file.endswith(".json"):
                         print(f"Skipping {config_file} because it is not a json file")
                         continue
