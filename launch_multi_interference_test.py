@@ -138,7 +138,7 @@ def remove_created_files(workload):
             end_time = time.time()
             print(f"Files removed successfully in {end_time - start_time} seconds.")
             # sleep for 5 minutes to allow garbage collection
-            time.sleep(300)
+            time.sleep(180)
         except subprocess.CalledProcessError as e:
             print(f"Error removing files in {data_dir}: {e}")
 
@@ -185,7 +185,7 @@ def main():
         DEBUG = False
 
     global username
-    workload = "macsio"
+    workload = "amrex"
     username = "root"
     if DEBUG:
         print("RUNNING IN DEBUG MODE")
@@ -202,10 +202,10 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     # Interference levels from 1 to 5
-    interference_levels = [0, 1, 2]
+    interference_levels = [0, 1, 2, 3, 4]
     assert 0 in interference_levels, "Interference level 0 is required"
     for interference_level in interference_levels:
-        num_repetitions = 2
+        num_repetitions = 4
         if interference_level == 0:
             num_repetitions = 1
         for repetition_idx in range(num_repetitions):
