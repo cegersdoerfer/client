@@ -149,9 +149,13 @@ def stop_remote_processes(processes, username):
         host = proc['host']
         pid = proc['pid']
         command = f"kill -9 {pid}"
-        backup_command = f"kill -9 $(pgrep io500)"
         output, error = run_remote_command(host, username, command)
-        output, error = run_remote_command(host, username, backup_command)
+        if "node" in host:
+            backup_command1 = f"kill -9 $(pgrep run_workloads.py)"
+            output, error = run_remote_command(host, username, backup_command1)
+            backup_command2 = f"kill -9 $(pgrep io500)"
+            output, error = run_remote_command(host, username, backup_command2)
+            
         if error:
             print(f"Error stopping process {pid} on {host}: {error}")
         else:
