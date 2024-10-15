@@ -149,7 +149,9 @@ def stop_remote_processes(processes, username):
         host = proc['host']
         pid = proc['pid']
         command = f"kill -9 {pid}"
+        backup_command = f"kill -9 $(pgrep io500)"
         output, error = run_remote_command(host, username, command)
+        output, error = run_remote_command(host, username, backup_command)
         if error:
             print(f"Error stopping process {pid} on {host}: {error}")
         else:
