@@ -1,6 +1,6 @@
 {
     "mds": ["server0"],
-    "oss": ["server1", "server2", "server3", "server4", "server5"],
+    "oss": ["server1"],
     "ost_per_server": 1,
     "mdt_per_server": 1,
     "interference_clients": ["node1", "node2", "node3"],
