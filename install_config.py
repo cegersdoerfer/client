@@ -14,7 +14,7 @@ def run_remote_command(host, username, command):
         ssh = paramiko.SSHClient()
         ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh.connect(hostname=host, username=username, timeout=10)
-        stdin, stdout, stderr = ssh.exec_command(command)
+        stdin, stdout, stderr = ssh.exec_command(command) 
         # Wait for the command to complete
         exit_status = stdout.channel.recv_exit_status()
         output = stdout.read().decode()
