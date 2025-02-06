@@ -1,10 +1,10 @@
 {
     "mds": ["server0"],
     "oss": ["server1", "server2", "server3", "server4", "server5"],
-    "ost_per_server": 2,
+    "ost_per_server": 1,
     "mdt_per_server": 1,
-    "interference_clients": ["node6", "node7", "node8", "node9"],
-    "target_client": "node4",
+    "interference_clients": ["node1", "node2", "node3"],
+    "target_client": "node0",
     "darshan_log_dir": "/custom-install/darshan-logs",
     "client": {
         "install_dir": "/custom-install/iosense/client"
