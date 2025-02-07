@@ -271,8 +271,8 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     print(f"Completed {app_name} with configuration: {config_file}")
                     gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level, repetition_idx)
                 
-                # sleep for 10 minutes to allow for garbage collection
-                #time.sleep(10*60)
+                # sleep for 15 minutes to allow for garbage collection
+                time.sleep(15*60)
             print("Application workload completed.")
         except Exception as e:
             print(f"Error during application workload: {e}")
