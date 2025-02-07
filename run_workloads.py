@@ -280,8 +280,8 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     sys.exit(retcode)
                 else:
                     print("rm -rf /mnt/hasanfs/io500_data completed")
-                # sleep for 15 minutes to allow for garbage collection
-                time.sleep(15*60)
+                # sleep for 5 minutes to allow for garbage collection
+                time.sleep(5*60)
             print("Application workload completed.")
         except Exception as e:
             print(f"Error during application workload: {e}")
