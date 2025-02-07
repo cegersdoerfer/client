@@ -17,7 +17,9 @@ def update_ini_files(directory):
                     config['ior-easy']['blockSize'] = '10g'
                 
                 if 'ior-hard' in config:
-                    config['ior-hard']['blockSize'] = '10g'
+                    if 'blockSize' in config['ior-hard']:
+                        del config['ior-hard']['blockSize']
+                    config['ior-hard']['segmentCount'] = '2000'
 
                 #for section in config:
                 #    if 'mdt' in section or 'mdw' in section:
