@@ -271,6 +271,15 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     print(f"Completed {app_name} with configuration: {config_file}")
                     gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level, repetition_idx)
                 
+                command = "rm -rf /mnt/hasanfs/io500_data"
+                print(f"Running command: {command}")
+                p = subprocess.Popen(command, shell=True, env=os.environ)
+                retcode = p.wait()
+                if retcode != 0:
+                    print(f"rm -rf /mnt/hasanfs/io500_data exited with return code {retcode}")
+                    sys.exit(retcode)
+                else:
+                    print("rm -rf /mnt/hasanfs/io500_data completed")
                 # sleep for 15 minutes to allow for garbage collection
                 time.sleep(15*60)
             print("Application workload completed.")
