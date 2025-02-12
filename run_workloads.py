@@ -66,7 +66,9 @@ def run_remote_command(host, username, command):
         return '', f"SSH connection to {host} failed: {e}"
     
 def kill_all_io500_processes(config, username):
+    print(f"Killing all IO500 processes on hosts: {config['interference_clients']}")
     hosts = config['interference_clients']
+    print(f"Hosts: {hosts}")
     for host in hosts:
         command1 = f"kill -9 $(pgrep run_workloads.py)"
         output, error = run_remote_command(host, username, command1)
