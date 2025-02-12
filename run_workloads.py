@@ -10,6 +10,7 @@ import random
 import json
 import shutil
 import datetime
+import paramiko
 
 terminate_flag = False
 
@@ -49,6 +50,28 @@ def signal_handler(signum, frame):
 # Register signal handlers
 signal.signal(signal.SIGINT, signal_handler)
 signal.signal(signal.SIGTERM, signal_handler)
+
+def run_remote_command(host, username, command):
+    try:
+        ssh = paramiko.SSHClient()
+        ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+        ssh.connect(hostname=host, username=username, timeout=10)
+        # Prefix the command with sudo su - -c 'command'
+        stdin, stdout, stderr = ssh.exec_command(command)
+        output = stdout.read().decode()
+        error = stderr.read().decode()
+        ssh.close()
+        return output.strip(), error.strip()
+    except Exception as e:
+        return '', f"SSH connection to {host} failed: {e}"
+    
+def kill_all_io500_processes(config, username):
+    hosts = config['interference_clients']
+    for host in hosts:
+        command1 = f"kill -9 $(pgrep run_workloads.py)"
+        output, error = run_remote_command(host, username, command1)
+        command2 = f"kill -9 $(pgrep io500)"
+        output, error = run_remote_command(host, username, command2)
 
 def run_interference_workload(config, interference_level):
     """
@@ -271,6 +294,7 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     print(f"Completed {app_name} with configuration: {config_file}")
                     gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level, repetition_idx)
                 
+                kill_all_io500_processes(config, "root")
                 command = "rm -rf /mnt/hasanfs/io500_data"
                 print(f"Running command: {command}")
                 p = subprocess.Popen(command, shell=True, env=os.environ)
@@ -280,8 +304,7 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     sys.exit(retcode)
                 else:
                     print("rm -rf /mnt/hasanfs/io500_data completed")
-                # sleep for 5 minutes to allow for garbage collection
-                time.sleep(5*60)
+                time.sleep(6*60)
             print("Application workload completed.")
         except Exception as e:
             print(f"Error during application workload: {e}")
