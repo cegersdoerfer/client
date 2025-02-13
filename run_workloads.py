@@ -298,16 +298,25 @@ def run_application_workload(config, app_name, interference_level, repetition_id
                     print(f"Completed {app_name} with configuration: {config_file}")
                     gather_darshan_logs(config['darshan_log_dir'], app_name, config, config_file, interference_level, repetition_idx)
                 
-                kill_all_io500_processes(config, "root")
-                command = "rm -rf /mnt/hasanfs/io500_data"
-                print(f"Running command: {command}")
-                p = subprocess.Popen(command, shell=True, env=os.environ)
-                retcode = p.wait()
-                if retcode != 0:
-                    print(f"rm -rf /mnt/hasanfs/io500_data exited with return code {retcode}")
-                    sys.exit(retcode)
-                else:
-                    print("rm -rf /mnt/hasanfs/io500_data completed")
+                # Add retry logic for directory cleanup
+                max_retries = 3
+                retry_delay = 5  # seconds
+                for attempt in range(max_retries):
+                    command = "rm -rf /mnt/hasanfs/io500_data"
+                    print(f"Running cleanup command (attempt {attempt + 1}/{max_retries}): {command}")
+                    p = subprocess.Popen(command, shell=True, env=os.environ)
+                    retcode = p.wait()
+                    if retcode == 0:
+                        print("Cleanup completed successfully")
+                        break
+                    else:
+                        print(f"Cleanup attempt {attempt + 1} failed with return code {retcode}")
+                        if attempt < max_retries - 1:
+                            print(f"Waiting {retry_delay} seconds before retrying...")
+                            time.sleep(retry_delay)
+                        else:
+                            print("Warning: Failed to clean up IO500 data directory after all retries")
+                            # Continue execution instead of exiting
                 time.sleep(6*60)
             print("Application workload completed.")
         except Exception as e:
