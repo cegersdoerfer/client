@@ -70,12 +70,12 @@ def kill_all_io500_processes(config, username):
     hosts = config['interference_clients']
     print(f"Hosts: {hosts}")
     for host in hosts:
-        command1 = f"kill -9 $(pgrep run_workloads.py)"
+        command1 = f"kill -9 $(pidof -x run_workloads.py)"
         output, error = run_remote_command(host, username, command1)
-        command2 = f"kill -9 $(pgrep io500)"
+        command2 = f"kill -9 $(pidof -x io500)"
         output, error = run_remote_command(host, username, command2)
 
-    time.sleep(10)
+    time.sleep(2)
 
 def run_interference_workload(config, interference_level):
     """
