@@ -75,6 +75,8 @@ def kill_all_io500_processes(config, username):
         command2 = f"kill -9 $(pgrep io500)"
         output, error = run_remote_command(host, username, command2)
 
+    time.sleep(10)
+
 def run_interference_workload(config, interference_level):
     """
     Run interference workload by maintaining interference_level number of IO500 processes.
