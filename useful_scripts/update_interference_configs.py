@@ -14,7 +14,7 @@ def update_ini_files(directory):
                     config['global']['resultdir'] = '/mnt/hasanfs/io500_data/results_interference'
                 
                 if 'ior-easy' in config:
-                    config['ior-easy']['blockSize'] = '5g'
+                    config['ior-easy']['blockSize'] = '10g'
                 
                 if 'ior-hard' in config:
                     if 'blockSize' in config['ior-hard']:
