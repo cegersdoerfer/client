@@ -184,67 +184,18 @@ def cleanup():
 
 def wait_for_sync_changes(mds_list, check_interval=2, verbose=True):
     """
-    1) For each MDS node, read the current 'osc.*.max_rpcs_in_progress' values
-    and store them.
-    2) Set all to 16384 to speed up processing.
-    3) Wait until all MDS nodes have osc.*.sync_changes == 0.
-    4) Restore the original 'max_rpcs_in_progress' values on each MDS node.
+    Wait until all MDS nodes have osc.*.sync_changes == 0.
 
     :param mds_list: A list of MDS node hostnames (or IPs).
     :param check_interval: number of seconds to sleep between checks of sync_changes
     :param verbose: if True, print progress messages
     """
-
-    # Regex to parse lines like:
-    #   osc.myfs-OST0000-osc-MDT0000.max_rpcs_in_progress=512
-    rpc_pattern = re.compile(r'^(osc\.[^=]+)\.max_rpcs_in_progress=(\d+)$')
     # Regex for lines like:
     #   osc.hasanfs-OST0000-osc-MDT0000.sync_changes=1747330
     sync_pattern = re.compile(r'^.*sync_changes=(\d+)$')
 
-    # Step 1: Gather the current max_rpcs_in_progress on each MDS
-    # We'll store them in a dict of the form:
-    #   saved_params[MDS][osc_name] = old_value
-    saved_params = {}
-
-    for mds in mds_list:
-        saved_params[mds] = {}
-        # 1A) read current param values:
-        cmd = ["ssh", mds, "lctl", "get_param", "osc.*.max_rpcs_in_progress"]
-        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                text=True, check=False)
-        if result.returncode != 0:
-            raise RuntimeError(f"[{mds}] Failed to get max_rpcs_in_progress:\n{result.stderr}")
-
-        lines = result.stdout.strip().splitlines()
-        for line in lines:
-            match = rpc_pattern.match(line.strip())
-            if match:
-                osc_name, old_val_str = match.groups()
-                old_val = int(old_val_str)
-                # e.g. osc_name='osc.hasanfs-OST0000-osc-MDT0000'
-                saved_params[mds][osc_name] = old_val
-
-        if verbose:
-            print(f"[{mds}] Found {len(saved_params[mds])} OSTs with max_rpcs_in_progress")
-
-    # Step 2: set all to 16384
-    NEW_VALUE = 16384
     if verbose:
-        print(f"Setting all MDS max_rpcs_in_progress to {NEW_VALUE}")
-
-    for mds in mds_list:
-        for osc_name in saved_params[mds]:
-            cmd = ["ssh", mds, "lctl", "set_param",
-                f"{osc_name}.max_rpcs_in_progress={NEW_VALUE}"]
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    text=True, check=False)
-            if result.returncode != 0:
-                raise RuntimeError(f"[{mds}] Failed setting {osc_name}.max_rpcs_in_progress:\n{result.stderr}")
-
-    # Step 3: Wait for sync_changes to hit 0 on all MDSes
-    if verbose:
-        print("Now waiting for osc.*.sync_changes to reach 0 on all MDS nodes...")
+        print("Waiting for osc.*.sync_changes to reach 0 on all MDS nodes...")
 
     while True:
         all_done = True
@@ -275,22 +226,6 @@ def wait_for_sync_changes(mds_list, check_interval=2, verbose=True):
             break
 
         time.sleep(check_interval)
-
-    # Step 4: restore the old max_rpcs_in_progress on each MDS
-    if verbose:
-        print("Restoring original max_rpcs_in_progress values...")
-
-    for mds in mds_list:
-        for osc_name, old_val in saved_params[mds].items():
-            cmd = ["ssh", mds, "lctl", "set_param",
-                f"{osc_name}.max_rpcs_in_progress={old_val}"]
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                    text=True, check=False)
-            if result.returncode != 0:
-                raise RuntimeError(f"[{mds}] Failed restoring {osc_name}.max_rpcs_in_progress:\n{result.stderr}")
-
-    if verbose:
-        print("All original values restored.")
 
 def main():
     global DEBUG
